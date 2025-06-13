@@ -23,7 +23,7 @@ void* global_heap_memory = nullptr;
 AvailableHeap heap;
 
 int init_heap() {
-    global_heap_memory = mmap(nullptr, sizeof(AlignedMemoryChunk*), PROT_READ | PROT_WRITE,
+    global_heap_memory = mmap(nullptr, sizeof(AlignedMemoryChunk), PROT_READ | PROT_WRITE,
                               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
     if (global_heap_memory == MAP_FAILED) {
