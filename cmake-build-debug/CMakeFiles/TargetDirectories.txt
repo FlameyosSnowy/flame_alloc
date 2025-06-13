@@ -1,0 +1,3 @@
+/home/flameyosflow/CLionProjects/flamealloc/cmake-build-debug/CMakeFiles/flamealloc.dir
+/home/flameyosflow/CLionProjects/flamealloc/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/flameyosflow/CLionProjects/flamealloc/cmake-build-debug/CMakeFiles/rebuild_cache.dir
