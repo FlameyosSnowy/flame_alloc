@@ -23,7 +23,7 @@ void* global_heap_memory = nullptr;
 AvailableHeap heap;
 
 int init_heap() {
-    global_heap_memory = mmap(nullptr, HEAP_SIZE, PROT_READ | PROT_WRITE,
+    global_heap_memory = mmap(nullptr, sizeof(AlignedMemoryChunk*), PROT_READ | PROT_WRITE,
                               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
     if (global_heap_memory == MAP_FAILED) {
@@ -53,7 +53,25 @@ void* flame_alloc(const uint32_t amount) {
         curr = curr->next;
     }
 
-    return nullptr;
+    // out of memory, let's try to add more blocks
+    void* new_heap_block = mmap(nullptr, sizeof(AlignedMemoryChunk*), PROT_READ | PROT_WRITE,
+               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+    AlignedMemoryChunk* chunk = new_heap_block;
+
+    chunk->size = HEAP_SIZE - sizeof(AlignedMemoryChunk);
+    chunk->in_use = false;
+    chunk->next = nullptr;
+
+    while (curr != nullptr) {
+        if (!curr->in_use && curr->size >= amount) {
+            curr = chunk;
+        }
+        curr = curr->next;
+    }
+
+    return chunk + 1;
+
 }
 
 int flame_free(const void* ptr) {
@@ -83,6 +101,26 @@ int main() {
 
     allocated_memory->yo = 64;
     printf("%d\n", allocated_memory->yo); // Prints 64
+
+    int* integer = flame_alloc(4);
+
+    if (!integer) {
+        printf("flame_alloc failed!\n");
+        exit(1);
+    }
+
+    *integer = 1;
+
+    printf("Pointer address %p\n", integer);
+    printf("Value: %d\n", *integer);
+
+    int* new_one = flame_alloc(4);
+    *new_one = 56943;
+
+
+    printf("new_one: %d\n", *new_one);
+    flame_free(new_one);
+    flame_free(integer);
     flame_free(allocated_memory);
 
     return 0;
